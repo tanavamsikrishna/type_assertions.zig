@@ -1,7 +1,7 @@
 const std = @import("std");
 
 const TestCaseExpectation = struct { file_path: []const u8, expected_exit_code: u8, in_stderr: ?[]const u8 = null };
-const test_cases = [_]TestCaseExpectation{.{ .file_path = "src/interface.1.test.zig", .expected_exit_code = 1 }};
+const test_cases = [_]TestCaseExpectation{.{ .file_path = "src/interface.1.test.zig", .expected_exit_code = 1, .in_stderr = "The return params for `some` do not match. Expected `void`. Found `u32`." }};
 
 pub fn main() !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
