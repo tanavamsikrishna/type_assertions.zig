@@ -17,20 +17,18 @@ pub fn main() !void {
     const allocator = arena.allocator();
 
     for (test_cases) |test_case| {
-        const result = try std.process.Child.run(.{ .allocator = allocator, .argv = &[_][]const u8{ "zig", "test", test_case.file_path } });
-
-        const stderr = result.stderr;
+        const result = try std.process.Child.run(.{ .allocator = allocator, .argv = &.{ "zig", "test", test_case.file_path } });
 
         var success = (result.term == .Exited) and (result.term.Exited == test_case.expected_exit_code);
 
         if (test_case.in_stderr) |in_stderr| {
-            success = success and std.mem.containsAtLeast(u8, stderr, 1, in_stderr);
+            success = success and std.mem.containsAtLeast(u8, result.stderr, 1, in_stderr);
         }
 
         std.testing.expect(success) catch |err| {
             std.debug.print("Test case(s) in {s} failed.\n=======\n{s}\n======\n", .{
                 test_case.file_path,
-                stderr,
+                result.stderr,
             });
             return err;
         };
