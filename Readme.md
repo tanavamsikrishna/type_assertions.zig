@@ -12,6 +12,11 @@ There isn't a way. It doesn't seem like the Zig team is interested in implementi
  an interface. This package tries to provide one such solution
  (and more while we are at it.)
 
+## Features
+
+1. Basic interfaces (more like interface "assertion"s)
+2. Testing on `comptime` code
+
 ## TODO
 
 - [ ] contract def within a contract def
