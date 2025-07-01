@@ -17,10 +17,9 @@ pub fn main() !void {
 
         var success = (status == .Exited) and (status.Exited == test_case.expected_exit_code);
 
-        const stderr = try cmd.stderr.?.reader().readAllAlloc(allocator, 10000);
-        defer allocator.free(stderr);
-
         if (test_case.in_stderr) |in_stderr| {
+            const stderr = try cmd.stderr.?.reader().readAllAlloc(allocator, 10000);
+            defer allocator.free(stderr);
             success = success and std.mem.containsAtLeast(u8, stderr, 1, in_stderr);
         }
 
