@@ -1,10 +1,9 @@
 const std = @import("std");
+const type_assertions = @import("src/root.zig");
 
-const TestCaseExpectation = struct {
-    file_path: []const u8,
-    expected_exit_code: u8,
-    in_stderr: ?[]const u8 = null,
-};
+const TestCaseExpectation = type_assertions.compile_assertions.TestCaseExpectation;
+const run_test = type_assertions.compile_assertions.run_test;
+
 const test_cases = [_]TestCaseExpectation{.{
     .file_path = "src/interface.1.test.zig",
     .expected_exit_code = 1,
@@ -12,25 +11,11 @@ const test_cases = [_]TestCaseExpectation{.{
 }};
 
 pub fn main() !void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
+    var gpa = std.heap.DebugAllocator(.{}).init;
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
 
     for (test_cases) |test_case| {
-        const result = try std.process.Child.run(.{ .allocator = allocator, .argv = &.{ "zig", "test", test_case.file_path } });
-
-        var success = (result.term == .Exited) and (result.term.Exited == test_case.expected_exit_code);
-
-        if (test_case.in_stderr) |in_stderr| {
-            success = success and std.mem.containsAtLeast(u8, result.stderr, 1, in_stderr);
-        }
-
-        std.testing.expect(success) catch |err| {
-            std.debug.print("Test case(s) in {s} failed.\n=======\n{s}\n======\n", .{
-                test_case.file_path,
-                result.stderr,
-            });
-            return err;
-        };
+        try run_test(allocator, test_case);
     }
 }
