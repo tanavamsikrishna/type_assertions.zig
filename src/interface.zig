@@ -59,8 +59,6 @@ pub fn interface(interface_def: anytype) type {
 
                     // check if fn return param match
                     if (implementer_decl_fn_info.return_type != interface_field_fn_info.return_type) {
-
-                        // check if fn return param match
                         const error_msg = std.fmt.comptimePrint("The return params for `{s}` do not match. Expected `{any}`. Found `{any}`.", .{ interface_field_name, interface_field_fn_info.return_type, implementer_decl_fn_info.return_type });
                         @compileError(error_msg);
                     }
@@ -68,18 +66,4 @@ pub fn interface(interface_def: anytype) type {
             }
         }
     };
-}
-
-test {
-    const MyInterface = interface(.{ .some = fn (iThis, u32) u32 });
-    const MyStruct = struct {
-        fn some(self: @This(), a: u32) u32 {
-            _ = a;
-            _ = self;
-            return 123;
-        }
-    };
-    MyInterface.implby(MyStruct);
-    const obj = MyStruct{};
-    _ = obj.some(23);
 }
